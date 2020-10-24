@@ -32,9 +32,25 @@ def h(x, s, theta):
     return s * sign(x - theta)
 
 
-def main():
+def train(THETA, S, X, Y):
+    E_in = 10000000
+    E_out = 0
+    for theta in THETA:
+        for s in S:
+            error = 0
+            for i in range(data_size):
+                x, y = X[i], Y[i]
+                if h(x, s, theta) != y:
+                    error += 1
+            if error / data_size < E_in:
+                E_in = error / data_size
+                E_out = (1 - 2 * tau) * (s * abs(theta) - s + 1) / 2 + tau
 
-    result = []
+    return E_out - E_in
+
+
+def main():
+    RESULT = []
     for time in range(ITER):
         X = np.random.uniform(-1, 1, data_size)
         X.sort()
@@ -46,24 +62,13 @@ def main():
             if X[i] != X[i + 1]:
                 THETA.append((X[i] + X[i + 1]) / 2.0)
 
-        E_in = 10000000
-        E_out = 0
-        for theta in THETA:
-            for s in S:
-                error = 0
-                for i in range(data_size):
-                    x, y = X[i], Y[i]
-                    if h(x, s, theta) != y:
-                        error += 1
-                if error / data_size < E_in:
-                    E_in = error / data_size
-                    E_out = (1 - 2 * tau) * (s * abs(theta) - s + 1) / 2 + tau
+        result = train(THETA, S, X, Y)
 
-        # print("Case {0}: {1}".format(time, E_out - E_in))
+        print("Case {0}: {1}".format(time, result))
 
-        result.append(E_out - E_in)
+        RESULT.append(result)
 
-    print("mean: {0}".format(statistics.mean(result)))
+    print("mean: {0}".format(statistics.mean(RESULT)))
 
 
 if __name__ == '__main__':
