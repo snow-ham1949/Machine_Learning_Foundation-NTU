@@ -45,6 +45,28 @@ def solve():
     print(squared_error_lin)
     # answer for problem 14 is 0.60532238
 
+    ITERS, eta = [], 0.001
+
+    for i in range(1000):  # repeat the experiment for 1000 times
+        w = np.zeros((len(train_X[0]), 1))
+        iteration, squared_error = 0, 10000
+        while squared_error >= 1.01 * squared_error_lin:
+            # choose one example
+            row_rand_array = np.arange(train_X.shape[0])
+            np.random.shuffle(row_rand_array)
+            x = train_X[row_rand_array[0:1]]
+            y = train_Y[row_rand_array[0:1]]
+            # update
+            w = w + np.transpose(eta * 2 * np.dot((y - np.dot(x, w)), x))
+            # calculate error
+            squared_error = cal_square_error(w, train_X, train_Y)
+            iteration += 1
+
+        ITERS.append(iteration)
+        print("Case {0}: {1}".format(i + 1, iteration))
+
+    print(np.mean(ITERS))
+
 
 if __name__ == '__main__':
     solve()
