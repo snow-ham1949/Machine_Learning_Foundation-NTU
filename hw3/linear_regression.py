@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time : 2020/11/14 上午 10:23
+# @Author : Li, Yun-Fang
+# @File : linear_regression.py
+# @Software: PyCharm
+
+import numpy as np
+
+
+data_num = 1000
+
+
+def preprocess_data(filename):
+    data = np.genfromtxt(filename)
+    X = data[:, :-1]
+    X = np.c_[np.ones(data_num), X]
+    Y = data[:, -1].reshape(1000, 1)
+
+    return X, Y
+
+
+def cal_pseudo_inverse(X):
+    X_t = np.transpose(X)
+    X_tX = np.dot(X_t, X)
+    X_tX_inverse = np.linalg.inv(X_tX)
+    H = np.dot(X_tX_inverse, X_t)
+
+    return H
+
+
+def cal_square_error(w, X, Y):
+    temp_Y = np.dot(X, w)
+    arr_error = Y - temp_Y
+    error = np.sum(arr_error ** 2) / data_num
+
+    return error
+
+
+def solve():
+    train_X, train_Y = preprocess_data('train.dat')
+    pseudo_inverse = cal_pseudo_inverse(train_X)
+    w_lin = np.dot(pseudo_inverse, train_Y)  # linear_regression weight
+    squared_error_lin = cal_square_error(w_lin, train_X, train_Y)  # E_{in}^{sqr}(w_lin)
+    print(squared_error_lin)
+    # answer for problem 14 is 0.60532238
+
+
+if __name__ == '__main__':
+    solve()
