@@ -8,14 +8,15 @@
 import numpy as np
 
 
-data_num = 1000
+train_data_num = 1000
+test_data_num = 3000
 
 
-def preprocess_data(filename):
+def preprocess_data(filename, num):
     data = np.genfromtxt(filename)
     X = data[:, :-1]
-    X = np.c_[np.ones(data_num), X]
-    Y = data[:, -1].reshape(1000, 1)
+    X = np.c_[np.ones(num), X]
+    Y = data[:, -1].reshape(num, 1)
 
     return X, Y
 
@@ -30,20 +31,37 @@ def cal_pseudo_inverse(X):
 
 
 def cal_square_error(w, X, Y):
-    temp_Y = np.dot(X, w)
-    arr_error = Y - temp_Y
-    error = np.sum(arr_error ** 2) / data_num
+    train_Y = np.dot(X, w)
+    arr_error = Y - train_Y
+    error = np.sum(arr_error ** 2) / train_data_num
 
     return error
 
 
+def sign(s):
+    if s > 0:
+        return 1
+    else:
+        return -1
+
+
+def cal_zero_one_error(w, X, Y, num):
+    temp_Y = np.dot(X, w)
+    error = 0
+    for i in range(num):
+        if sign(temp_Y[i][0]) != Y[i][0]:
+            error += 1
+
+    return error / num
+
+
 def solve():
-    train_X, train_Y = preprocess_data('train.dat')
+    train_X, train_Y = preprocess_data('train.dat', train_data_num)
+    test_X, test_Y = preprocess_data('test.dat', test_data_num)
     pseudo_inverse = cal_pseudo_inverse(train_X)
     w_lin = np.dot(pseudo_inverse, train_Y)  # linear_regression weight
     squared_error_lin = cal_square_error(w_lin, train_X, train_Y)  # E_{in}^{sqr}(w_lin)
-    print(squared_error_lin)
-    # answer for problem 14 is 0.60532238
+    print("Answer for problem 14: {0}".format(squared_error_lin))
 
     ITERS, eta = [], 0.001
 
@@ -63,9 +81,13 @@ def solve():
             iteration += 1
 
         ITERS.append(iteration)
-        print("Case {0}: {1}".format(i + 1, iteration))
+        # print("Case {0}: {1}".format(i + 1, iteration))
 
-    print(np.mean(ITERS))
+    print("Answer for problem 15: {0}".format(np.mean(ITERS)))
+
+    error_in = cal_zero_one_error(w_lin, train_X, train_Y, train_data_num)
+    error_out = cal_zero_one_error(w_lin, test_X, test_Y, test_data_num)
+    print("Answer for problem 18: {0}".format(abs(error_in - error_out)))
 
 
 if __name__ == '__main__':
