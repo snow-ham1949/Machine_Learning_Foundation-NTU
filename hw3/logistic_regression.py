@@ -34,11 +34,12 @@ def sigmoid(s):
 
 
 def cal_cross_entropy_error(w, X, Y):
-    train_Y = np.dot(X, w)
-    arr_error = np.log(1 + np.exp(-(Y - train_Y)))
-    error = np.sum(arr_error) / data_num
+    error = 0.0
 
-    return error
+    for i in range(len(X)):
+        error += np.log(1 + np.exp(-Y[i] * np.dot(X[i], w)))
+
+    return error / data_num
 
 
 def solve():
@@ -46,11 +47,11 @@ def solve():
     pseudo_inverse = cal_pseudo_inverse(train_X)
     w_lin = np.dot(pseudo_inverse, train_Y)  # linear_regression weight
 
-    ERRORS, eta = [], 0.001
+    ERRORS_16, ERRORS_17, eta = [], [], 0.001
 
     for i in range(1000):  # repeat the experiment for 1000 times
-        w = np.zeros((len(train_X[0]), 1))
-        # w = w_lin
+        w_16 = np.zeros((len(train_X[0]), 1))
+        w_17 = w_lin
         for iteration in range(500):
             # choose one example
             row_rand_array = np.arange(train_X.shape[0])
@@ -58,14 +59,17 @@ def solve():
             x = train_X[row_rand_array[0:1]]
             y = train_Y[row_rand_array[0:1]]
             # update
-            w = w + y * eta * np.transpose(sigmoid(-y * np.dot(x, w)) * x)
+            w_16 = w_16 + eta * y * np.transpose(sigmoid(-y * np.dot(x, w_16)) * x)
+            w_17 = w_17 + eta * y * np.transpose(sigmoid(-y * np.dot(x, w_17)) * x)
 
         # calculate error
-        error = cal_cross_entropy_error(w, train_X, train_Y)
-        print("Case {0}: {1}".format(i + 1, error))
-        ERRORS.append(error)
+        error = cal_cross_entropy_error(w_16, train_X, train_Y)
+        ERRORS_16.append(error)
+        error = cal_cross_entropy_error(w_17, train_X, train_Y)
+        ERRORS_17.append(error)
 
-    print(np.mean(ERRORS))
+    print("Answer for problem 16: {0}".format(np.mean(ERRORS_16)))
+    print("Answer for problem 17: {0}".format(np.mean(ERRORS_17)))
 
 
 if __name__ == '__main__':
