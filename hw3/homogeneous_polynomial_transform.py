@@ -19,7 +19,6 @@ def preprocess_data(filename, num, Q):
     for i in range(2, Q + 1):
         X = np.c_[X, np.power(original_X, i)]
     X = np.c_[np.ones(num), X]
-    print(X.shape)
     Y = data[:, -1].reshape(num, 1)
 
     return X, Y
